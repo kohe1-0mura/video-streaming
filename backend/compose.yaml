@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: streaming_service_prod
+    volumes: [db-data:/var/lib/postgresql/data]
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgres://postgres:password@db:5432/streaming_service_prod
+    ports: ["3000:3000"]
+    depends_on: [db]
+
+volumes:
+  db-data:
