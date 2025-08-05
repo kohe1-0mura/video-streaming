@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: streaming_service_prod
+      # POSTGRES_USER: postgres
+      # POSTGRES_PASSWORD: password
+      # POSTGRES_DB: streaming_service_prod
     volumes: [db-data:/var/lib/postgresql/data]
 
   backend:

@@ -1,7 +1,11 @@
 class VideosController < ApplicationController
   def create
-    video = Video.create!
-    video.file.attach(params.require(:video).permit(:file)[:file])
-    render json: { id: video.id, created_at: video.created_at }
+    video = Video.new
+    signed_id = params.require(:video).fetch(:file)
+
+    video.file.attach(signed_id)
+    video.save!
+
+    render json: { status: 200 }
   end
 end

@@ -62,7 +62,6 @@ const UploadForm = () => {
           isClosable: true,
         });
 
-        // フォームをリセット
         if (inputRef.current) {
           inputRef.current.value = "";
         }
