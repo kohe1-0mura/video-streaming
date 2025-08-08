@@ -28,6 +28,8 @@ class VideosController < ApplicationController
   def serialize(video)
     {
       id: video.id,
+      title: (video.file.attached? ? video.file.blob.filename.to_s : "無題"),
+      created_at: video.created_at.iso8601,
       thumbnail_url: (video.thumbnail.attached? ? rails_blob_url(video.thumbnail, only_path: false) : nil),
       stream_url:    (video.file.attached? ? rails_blob_url(video.file, disposition: :inline, only_path: false) : nil)
     }
