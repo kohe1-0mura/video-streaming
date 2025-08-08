@@ -9,23 +9,25 @@ class VideosController < ApplicationController
     render json: serialize(Video.find(params[:id]))
   end
 
-  def create
-    v = Video.new(group_id: video_params[:group_id])
-    v.file.attach(video_params[:file])
-    v.thumbnail.attach(video_params[:thumbnail]) if video_params[:thumbnail].present?
+  def precreate
+    v = Video.create!
+    render json: { id: v.id }
+  end
+
+  def update
+    v = Video.find(params[:id])
+    v.file.attach(params.require(:video).permit(:file)[:file])
+    v.group_id ||= v.id.to_s
     v.save!
-    render json: { id: v.id }, status: :created
+    GenerateThumbnailJob.perform_later(v.id)
+    head :no_content
   end
 
   private
 
-  def video_params
-    params.require(:video).permit(:file, :thumbnail, :group_id)
-  end
-
   def serialize(video)
     {
-      id:            video.id,
+      id: video.id,
       thumbnail_url: (video.thumbnail.attached? ? rails_blob_url(video.thumbnail, only_path: false) : nil),
       stream_url:    (video.file.attached? ? rails_blob_url(video.file, disposition: :inline, only_path: false) : nil)
     }

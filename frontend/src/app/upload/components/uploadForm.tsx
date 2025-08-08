@@ -3,38 +3,21 @@
 import { DirectUpload } from "@rails/activestorage"
 import React, { useRef } from "react"
 import { useToast } from "@chakra-ui/react"
-import { extractThumbnail } from "@/lib/thumbnail"
-import { directUpload } from "@/lib/activestorage"
 
 const API = process.env.NEXT_PUBLIC_API_URL!
-
-async function createVideoRecord(opts: {
-  fileSignedId: string
-  thumbnailSignedId?: string
-  groupId: string
-  apiBase?: string
-}): Promise<void> {
-  const api = opts.apiBase ?? API
-  const res = await fetch(`${api}/videos`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      video: {
-        file: opts.fileSignedId,
-        thumbnail: opts.thumbnailSignedId,
-        group_id: opts.groupId,
-      },
-    }),
-  })
-  if (!res.ok) {
-    const msg = await res.text().catch(() => "")
-    throw new Error(`POST /videos failed: ${res.status} ${msg}`)
-  }
-}
 
 export default function UploadForm() {
   const inputRef = useRef<HTMLInputElement>(null)
   const toast = useToast()
+
+  const directUpload = (file: File, groupId: string) =>
+    new Promise<{ signed_id: string }>((resolve, reject) => {
+      const url = `${API}/rails/active_storage/direct_uploads?group_id=${encodeURIComponent(groupId)}`
+      new DirectUpload(file, url).create((err: any, blob: any) => {
+        if (err) return reject(err)
+        resolve({ signed_id: blob.signed_id })
+      })
+    })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,21 +27,17 @@ export default function UploadForm() {
       return
     }
 
-    const groupId = crypto.randomUUID()
     toast({ title: "アップロード開始", description: "処理中...", status: "info" })
 
     try {
-      const thumbFile = await extractThumbnail(file, 1)
+      const pre = await fetch(`${API}/videos/precreate`, { method: "POST" })
+      const { id } = await pre.json() as { id: number }
+      const { signed_id } = await directUpload(file, String(id))
 
-      const [videoBlob, thumbBlob] = await Promise.all([
-        directUpload(file, groupId),
-        directUpload(thumbFile, groupId),
-      ])
-
-      await createVideoRecord({
-        fileSignedId: videoBlob.signed_id,
-        thumbnailSignedId: thumbBlob.signed_id,
-        groupId,
+      await fetch(`${API}/videos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ video: { file: signed_id } }),
       })
 
       toast({ title: "完了", description: "アップロードしました。", status: "success" })
@@ -69,7 +48,7 @@ export default function UploadForm() {
     }
   }
 
-  return (
+  return (    
     <div style={{ maxWidth: 500, margin: "0 auto", padding: "40px 20px", fontFamily: "Arial, sans-serif" }}>
       <form
         onSubmit={handleSubmit}
@@ -114,6 +93,6 @@ export default function UploadForm() {
           アップロード
         </button>
       </form>
-    </div>
+    </div> 
   )
 }
