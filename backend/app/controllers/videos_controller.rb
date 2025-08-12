@@ -20,6 +20,8 @@ class VideosController < ApplicationController
     v.group_id ||= v.id.to_s
     v.save!
     GenerateThumbnailJob.perform_later(v.id)
+    GenerateHlsJob.perform_later(v.id)
+    
     head :no_content
   end
 
@@ -31,7 +33,7 @@ class VideosController < ApplicationController
       title: (video.file.attached? ? video.file.blob.filename.to_s : "無題"),
       created_at: video.created_at.iso8601,
       thumbnail_url: (video.thumbnail.attached? ? rails_blob_url(video.thumbnail, only_path: false) : nil),
-      stream_url:    (video.file.attached? ? rails_blob_url(video.file, disposition: :inline, only_path: false) : nil)
+      hls_url: (video.hls_playlist.attached? ? rails_blob_url(video.hls_playlist, disposition: :inline, only_path: false) : nil)
     }
   end
 end
