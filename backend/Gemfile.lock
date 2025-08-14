@@ -108,6 +108,8 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     drb (2.2.3)
+    enumerize (2.8.1)
+      activesupport (>= 3.2)
     erb (5.0.2)
     erubi (1.13.1)
     globalid (1.2.1)
@@ -297,6 +299,7 @@ DEPENDENCIES
   bootsnap
   brakeman
   debug
+  enumerize
   pg (~> 1.5)
   puma (~> 6.5)
   rack-cors
