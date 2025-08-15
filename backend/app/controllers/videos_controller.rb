@@ -1,6 +1,6 @@
 class VideosController < ApplicationController
   def index
-    videos = Video.with_attached_file.with_attached_thumbnail
+    videos = Video.where(status: :ready).with_attached_thumbnail
                   .order(id: :desc).map { |v| serialize(v) }
     render json: videos
   end
@@ -20,9 +20,18 @@ class VideosController < ApplicationController
     v.group_id ||= v.id.to_s
     v.save!
     GenerateThumbnailJob.perform_later(v.id)
-    GenerateHlsJob.perform_later(v.id)
     
     head :no_content
+  end
+
+  def hls_complete
+    v = Video.find(params[:id])
+    body = request.request_parameters.presence || JSON.parse(request.raw_post) rescue {}
+    master_key = body["master_key"].presence ||
+                 "videos/#{v.group_id || v.id}/hls/master.m3u8"
+
+    v.update!(status: :ready, hls_master_key: master_key)
+    head :ok
   end
 
   private
@@ -32,8 +41,9 @@ class VideosController < ApplicationController
       id: video.id,
       title: (video.file.attached? ? video.file.blob.filename.to_s : "無題"),
       created_at: video.created_at.iso8601,
+      status: video.status,
       thumbnail_url: (video.thumbnail.attached? ? rails_blob_url(video.thumbnail, only_path: false) : nil),
-      hls_url: (video.hls_playlist.attached? ? rails_blob_url(video.hls_playlist, disposition: :inline, only_path: false) : nil)
+      hls_url: video.hls_url
     }
   end
 end

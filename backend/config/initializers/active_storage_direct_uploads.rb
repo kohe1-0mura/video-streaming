@@ -5,7 +5,8 @@ Rails.application.config.to_prepare do
       raise ActionController::BadRequest, "group_id missing" if gid.blank? || gid == "undefined"
 
       filename = params.dig(:blob, :filename).to_s
-      key = "videos/#{gid}/#{filename}"
+      ext = File.extname(filename).downcase
+      key = "videos/#{gid}/#{SecureRandom.hex(16)}#{ext}"
 
       attrs = params.require(:blob)
                     .permit(:filename, :byte_size, :checksum, :content_type)

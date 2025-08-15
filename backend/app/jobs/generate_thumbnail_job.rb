@@ -9,7 +9,6 @@ class GenerateThumbnailJob < ApplicationJob
       out = File.join(dir, "thumbnail.jpg")
 
       video.file.blob.open do |src|
-        # サムネイルの切り出し
         thumbnail = system("ffmpeg", "-y", "-ss", "1", "-i", src.path,
                     "-frames:v", "1", "-vf", "scale=320:-1",
                     out, out: File::NULL, err: File::NULL)

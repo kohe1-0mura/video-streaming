@@ -1,4 +1,3 @@
-# app/jobs/generate_hls_job.rb
 class GenerateHlsJob < ApplicationJob
   queue_as :default
 

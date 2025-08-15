@@ -7,8 +7,8 @@ class Video < ApplicationRecord
   has_one_attached :thumbnail
 
   def hls_url
-    gid  = group_id.presence || id.to_s
-    base = ENV["HLS_BASE_URL"].presence || "https://#{ENV.fetch("OUTPUT_BUCKET")}.s3.amazonaws.com"
-    "#{base}/videos/#{gid}/hls/master.m3u8"
+    key  = hls_master_key.presence
+    base = ENV["HLS_BASE_URL"].presence || "https://#{ENV.fetch("AWS_BUCKET")}.s3.amazonaws.com"
+    "#{base}/#{key}"
   end
 end

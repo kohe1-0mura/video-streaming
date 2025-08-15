@@ -22,7 +22,7 @@ type Video = {
   title: string; 
   created_at: string; 
   thumbnail_url: string | null; 
-  stream_url: string | null 
+  hls_url: string | null 
 }
 const API = process.env.NEXT_PUBLIC_API_URL!
 
