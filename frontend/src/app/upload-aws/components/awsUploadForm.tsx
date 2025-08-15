@@ -6,13 +6,13 @@ import { useToast } from "@chakra-ui/react"
 
 const API = process.env.NEXT_PUBLIC_API_URL!
 
-export default function UploadForm() {
+export default function AwsUploadForm() {
   const inputRef = useRef<HTMLInputElement>(null)
   const toast = useToast()
 
   const directUpload = (file: File, groupId: string) =>
     new Promise<{ signed_id: string }>((resolve, reject) => {
-      const url = `${API}/rails/active_storage/direct_uploads?group_id=${encodeURIComponent(groupId)}&upload_type=rails`
+      const url = `${API}/rails/active_storage/direct_uploads?group_id=${encodeURIComponent(groupId)}&upload_type=aws`
       new DirectUpload(file, url).create((err: any, blob: any) => {
         if (err) return reject(err)
         resolve({ signed_id: blob.signed_id })
@@ -27,20 +27,25 @@ export default function UploadForm() {
       return
     }
 
-    toast({ title: "アップロード開始", description: "処理中...", status: "info" })
+    toast({ title: "アップロード開始", description: "AWS上で処理されます...", status: "info" })
 
     try {
       const pre = await fetch(`${API}/videos/precreate`, { method: "POST" })
       const { id } = await pre.json() as { id: number }
       const { signed_id } = await directUpload(file, String(id))
 
-      await fetch(`${API}/videos/${id}/update_with_hls`, {
+      // AWS用のエンドポイント（HLS変換なし）
+      await fetch(`${API}/videos/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ video: { file: signed_id } }),
       })
 
-      toast({ title: "完了", description: "アップロードしました。ffmpegでHLS変換中です。", status: "success" })
+      toast({ 
+        title: "完了", 
+        description: "アップロードしました。MediaConvertでHLS変換が開始されます。", 
+        status: "success" 
+      })
       if (inputRef.current) inputRef.current.value = ""
     } catch (err) {
       console.error(err)
@@ -52,10 +57,10 @@ export default function UploadForm() {
     <div style={{ maxWidth: 500, margin: "0 auto", padding: "40px 20px", fontFamily: "Arial, sans-serif" }}>
       <div style={{ textAlign: "center", marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: "bold", color: "#333", marginBottom: 10 }}>
-          ffmpeg HLS変換
+          AWS MediaConvert HLS変換
         </h1>
         <p style={{ color: "#666", fontSize: 14 }}>
-          このページではサーバー上でffmpegを使いHLS変換を行います
+          このページではAWS MediaConvertでHLS変換を行います
         </p>
       </div>
       
@@ -66,9 +71,9 @@ export default function UploadForm() {
           flexDirection: "column",
           gap: 20,
           padding: 30,
-          border: "2px dashed #ddd",
+          border: "2px dashed #ff9800",
           borderRadius: 10,
-          backgroundColor: "#fafafa",
+          backgroundColor: "#fff3e0",
           textAlign: "center",
         }}
       >
@@ -90,7 +95,7 @@ export default function UploadForm() {
           type="submit"
           style={{
             padding: "12px 30px",
-            backgroundColor: "#007bff",
+            backgroundColor: "#ff9800",
             color: "white",
             border: "none",
             borderRadius: 5,
@@ -105,14 +110,14 @@ export default function UploadForm() {
       
       <div style={{ marginTop: 20, textAlign: "center" }}>
         <a 
-          href="/upload-aws" 
+          href="/upload" 
           style={{ 
-            color: "#ff9800", 
+            color: "#007bff", 
             textDecoration: "underline",
             fontSize: 14 
           }}
         >
-          MediaConvert での変換に切り替え
+          ffmpeg での変換に切り替え
         </a>
       </div>
     </div> 

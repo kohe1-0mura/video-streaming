@@ -15,12 +15,19 @@ class GenerateThumbnailJob < ApplicationJob
         return unless thumbnail && File.size?(out)
       end
 
+      video_key = video.file.blob.key
+      if video_key.include?("videos/rails/")
+        thumbnail_key = "videos/rails/#{video.id}/thumbnail.jpg"
+      else
+        thumbnail_key = "videos/mc/#{video.id}/thumbnail.jpg"
+      end
+
       video.thumbnail.purge_later if video.thumbnail.attached?
       video.thumbnail.attach(
         io: File.open(out, "rb"),
         filename: "thumbnail.jpg",
         content_type: "image/jpeg",
-        key: "videos/#{video.id}/thumbnail.jpg"
+        key: thumbnail_key
       )
     end
   end

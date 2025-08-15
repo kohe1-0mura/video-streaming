@@ -4,9 +4,16 @@ Rails.application.config.to_prepare do
       gid = params[:group_id].to_s
       raise ActionController::BadRequest, "group_id missing" if gid.blank? || gid == "undefined"
 
+      upload_type = params[:upload_type].to_s
+      
       filename = params.dig(:blob, :filename).to_s
       ext = File.extname(filename).downcase
-      key = "videos/#{gid}/#{SecureRandom.hex(16)}#{ext}"
+      
+      if upload_type == "rails"
+        key = "videos/rails/#{gid}/#{SecureRandom.hex(16)}#{ext}"
+      else
+        key = "videos/mc/#{gid}/#{SecureRandom.hex(16)}#{ext}"
+      end
 
       attrs = params.require(:blob)
                     .permit(:filename, :byte_size, :checksum, :content_type)

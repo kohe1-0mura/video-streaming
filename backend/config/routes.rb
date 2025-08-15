@@ -7,7 +7,10 @@ Rails.application.routes.draw do
 
   resources :videos, only: %i[index show update] do
     collection { post :precreate }
-    member     { post :hls_complete } 
+    member do 
+      post :hls_complete
+      put :update_with_hls
+    end 
   end
 
   # Defines the root path route ("/")

@@ -24,6 +24,17 @@ class VideosController < ApplicationController
     head :no_content
   end
 
+  def update_with_hls
+    v = Video.find(params[:id])
+    v.file.attach(params.require(:video).permit(:file)[:file])
+    v.group_id ||= v.id.to_s
+    v.save!
+    GenerateThumbnailJob.perform_later(v.id)
+    GenerateHlsJob.perform_later(v.id)
+    
+    head :no_content
+  end
+
   def hls_complete
     v = Video.find(params[:id])
     body = request.request_parameters.presence || JSON.parse(request.raw_post) rescue {}

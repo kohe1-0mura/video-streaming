@@ -5,6 +5,7 @@ class Video < ApplicationRecord
 
   has_one_attached :file
   has_one_attached :thumbnail
+  has_one_attached :hls_playlist
 
   def hls_url
     key  = hls_master_key.presence
