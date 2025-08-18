@@ -13,37 +13,58 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+        <h1 style={{ fontSize: 32, fontWeight: "bold", marginBottom: 20 }}>
+          動画ストリーミングサービス
+        </h1>
+        
+        <div style={{ display: "flex", gap: 20, marginBottom: 30 }}>
+          <a
+            href="/upload"
+            style={{
+              padding: "15px 30px",
+              backgroundColor: "#007bff",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: 8,
+              fontSize: 16,
+              fontWeight: "bold"
+            }}
+          >
+            ffmpeg で変換
+          </a>
+          <a
+            href="/upload-aws"
+            style={{
+              padding: "15px 30px",
+              backgroundColor: "#ff9800",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: 8,
+              fontSize: 16,
+              fontWeight: "bold"
+            }}
+          >
+            mediaconvert で変換
+          </a>
+          <a
+            href="/videos"
+            style={{
+              padding: "15px 30px",
+              backgroundColor: "#28a745",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: 8,
+              fontSize: 16,
+              fontWeight: "bold"
+            }}
+          >
+            動画一覧
+          </a>
+        </div>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+        <div style={{ textAlign: "center", color: "#666" }}>
+          <p>Rails: ffmpegでHLS変換を実行</p>
+          <p>AWS: MediaConvertでHLS変換を実行</p>
         </div>
       </main>
       <footer className={styles.footer}>
