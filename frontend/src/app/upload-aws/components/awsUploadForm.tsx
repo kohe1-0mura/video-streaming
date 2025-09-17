@@ -3,8 +3,11 @@
 import { DirectUpload } from "@rails/activestorage"
 import React, { useRef } from "react"
 import { useToast } from "@chakra-ui/react"
+import Link from "next/link"
 
 const API = process.env.NEXT_PUBLIC_API_URL!
+
+type DirectUploadBlob = { signed_id: string }
 
 export default function AwsUploadForm() {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -13,8 +16,9 @@ export default function AwsUploadForm() {
   const directUpload = (file: File, groupId: string) =>
     new Promise<{ signed_id: string }>((resolve, reject) => {
       const url = `${API}/rails/active_storage/direct_uploads?group_id=${encodeURIComponent(groupId)}&upload_type=aws`
-      new DirectUpload(file, url).create((err: any, blob: any) => {
+      new DirectUpload(file, url).create((err: Error | null, blob?: DirectUploadBlob) => {
         if (err) return reject(err)
+        if (!blob) return reject(new Error("No blob returned"))
         resolve({ signed_id: blob.signed_id })
       })
     })
@@ -31,7 +35,7 @@ export default function AwsUploadForm() {
 
     try {
       const pre = await fetch(`${API}/videos/precreate`, { method: "POST" })
-      const { id } = await pre.json() as { id: number }
+      const { id } = (await pre.json()) as { id: number }
       const { signed_id } = await directUpload(file, String(id))
 
       // AWS用のエンドポイント（HLS変換なし）
@@ -109,7 +113,7 @@ export default function AwsUploadForm() {
       </form>
       
       <div style={{ marginTop: 20, textAlign: "center" }}>
-        <a 
+        <Link 
           href="/upload" 
           style={{ 
             color: "#007bff", 
@@ -118,7 +122,7 @@ export default function AwsUploadForm() {
           }}
         >
           ffmpeg での変換に切り替え
-        </a>
+        </Link>
       </div>
     </div> 
   )

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import styles from "./page.module.css";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -18,7 +19,7 @@ export default function Home() {
         </h1>
         
         <div style={{ display: "flex", gap: 20, marginBottom: 30 }}>
-          <a
+          <Link
             href="/upload"
             style={{
               padding: "15px 30px",
@@ -31,8 +32,8 @@ export default function Home() {
             }}
           >
             ffmpeg で変換
-          </a>
-          <a
+          </Link>
+          <Link
             href="/upload-aws"
             style={{
               padding: "15px 30px",
@@ -45,8 +46,8 @@ export default function Home() {
             }}
           >
             mediaconvert で変換
-          </a>
-          <a
+          </Link>
+          <Link
             href="/videos"
             style={{
               padding: "15px 30px",
@@ -59,7 +60,7 @@ export default function Home() {
             }}
           >
             動画一覧
-          </a>
+          </Link>
         </div>
 
         <div style={{ textAlign: "center", color: "#666" }}>
