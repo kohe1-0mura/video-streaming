@@ -20,6 +20,10 @@ RUN bundle config set --local deployment 'true' && \
 
 COPY . .
 
+COPY bin/rails-entrypoint.sh /usr/bin/rails-entrypoint
+RUN chmod +x /usr/bin/rails-entrypoint
+
 EXPOSE 3000
 
+ENTRYPOINT ["rails-entrypoint"]
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb", "-e", "production"]
